@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36202.13 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvenBetterSaveList", "EvenBetterSaveList\EvenBetterSaveList.csproj", "{CDBBAB89-D1F4-4FE1-AA7D-E257CAD5F474}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CDBBAB89-D1F4-4FE1-AA7D-E257CAD5F474}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CDBBAB89-D1F4-4FE1-AA7D-E257CAD5F474}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CDBBAB89-D1F4-4FE1-AA7D-E257CAD5F474}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CDBBAB89-D1F4-4FE1-AA7D-E257CAD5F474}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {69AEBEA6-5959-4F3D-94F3-8887475E317D}
+	EndGlobalSection
+EndGlobal

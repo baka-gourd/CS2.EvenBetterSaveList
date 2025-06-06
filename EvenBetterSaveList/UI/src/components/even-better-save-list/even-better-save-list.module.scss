@@ -1,0 +1,61 @@
+.cityRow {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    padding: 0.5em 0;
+}
+
+.leftSection {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    padding-left: 0.25em;
+}
+
+.rightSection {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+}
+
+.cityArrow {
+    width: 1em;
+    height: 1em;
+    margin-right: 0.5em;
+    // margin-top: 0.125em;
+    flex-shrink: 0;
+    transition: transform 0.1s ease;
+    transform: rotate(-90deg);
+
+    &.expanded {
+        transform: rotate(0deg);
+    }
+
+    path {
+        stroke: var(--menuText1Normal);
+        stroke-width: 4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+    }
+}
+
+.sortingControls {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    justify-content: space-between;
+}
+
+.evenBetter {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+
+    > div {
+        flex: 1;
+        overflow: hidden;
+    }
+}
