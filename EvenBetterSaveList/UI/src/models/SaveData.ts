@@ -4,6 +4,7 @@ export interface CityInfo {
     displayName: string;
     population: number;
     lastModified: string;
+    missingPrerequisites?: string[];
 }
 
 export interface SaveInfo {
