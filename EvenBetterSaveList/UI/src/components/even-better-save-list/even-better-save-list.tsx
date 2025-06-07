@@ -1,10 +1,9 @@
 import {
-    saveListClasses,
     useUniformSizeProvider,
-    VirtualList,
     FullWidthDigits,
     Icon,
-} from "../../util";
+    useMissingPrerequisites,
+} from "../vanilla/util";
 import mod from "mod.json";
 import { bindValue, call, trigger, useValue } from "cs2/api";
 import { useCssLength } from "cs2/utils";
@@ -14,22 +13,29 @@ import { SaveItem, saveItemClasses } from "components/vanilla/SaveItem";
 import { LocalizedTimestamp } from "components/vanilla/LocalizedTimestamp";
 import { SaveListHeader } from "components/vanilla/SaveListHeader";
 import styles from "./even-better-save-list.module.scss";
+import { Tooltip } from "cs2/ui";
+import { useLocalization } from "cs2/l10n";
+import { VirtualList } from "components/vanilla/VirtualList";
+import {
+    prerequisitesClasses,
+    saveListClasses,
+} from "components/vanilla/cssCollection";
 
-// 类型定义
+// #region MISC
 type CityInfoDict = { [key: string]: CityInfo };
 type RowType =
     | { type: "city"; city: CityInfo }
     | { type: "save"; save: SaveInfo; parentCity: string };
 
-// 常量定义
 const ORDERING_OPTIONS = [0, 2, 1] as const;
 const SORT_TYPES = {
     NAME: 0,
     LAST_MODIFIED: 1,
     POPULATION: 2,
 } as const;
+// #endregion
 
-// 全局绑定
+// #region Interop
 const saveList$ = bindValue<SaveInfo[]>("menu", "saves");
 const enabled$ = bindValue<boolean>(mod.id, "enabled");
 
@@ -50,12 +56,12 @@ const isSaveListOrderingDesc$ = bindValue<boolean>(
     mod.id,
     "isSaveListOrderingDesc"
 );
-const arePrerequisitesMet = (contentPrerequisites: string) =>
-    call<boolean>("app", "arePrerequisitesMet", contentPrerequisites);
 const setSaveListOrderingDesc = (desc: boolean) =>
     trigger(mod.id, "setSaveListOrderingDesc", desc);
 
-// 工具函数
+// #endregion
+
+// #region util
 const getTime = (date: string) => new Date(date).getTime();
 
 const createComparator = (ordering: number, isDesc: boolean) => {
@@ -86,15 +92,15 @@ const createComparator = (ordering: number, isDesc: boolean) => {
         return isDesc ? -value : value;
     };
 };
+// #endregion
 
-// 自定义hooks
+// #region Hooks
 const useCityInfo = (saveList: SaveInfo[]): CityInfoDict => {
     return useMemo(() => {
         const info: CityInfoDict = {};
 
         for (const save of saveList) {
             const cityName = save.cityName;
-
             if (!info[cityName]) {
                 info[cityName] = {
                     ...save,
@@ -102,7 +108,6 @@ const useCityInfo = (saveList: SaveInfo[]): CityInfoDict => {
                 };
             } else {
                 const city = info[cityName];
-                // 保持最大人口和最新修改时间
                 if (save.population > city.population) {
                     city.population = save.population;
                 }
@@ -137,7 +142,6 @@ const useGroupedSaves = (
     isDesc: boolean
 ): { [cityName: string]: SaveInfo[] } => {
     return useMemo(() => {
-        // 分组
         const groups: { [key: string]: SaveInfo[] } = {};
         for (const save of saveList) {
             const cityName = save.cityName;
@@ -147,7 +151,6 @@ const useGroupedSaves = (
             groups[cityName].push(save);
         }
 
-        // 排序每个组
         const comparator = createComparator(ordering, isDesc);
         for (const cityName in groups) {
             groups[cityName].sort(comparator);
@@ -184,7 +187,82 @@ const useFlatList = (
     }, [cityList, citySaveLists, expandedCities]);
 };
 
-// 城市行组件
+const useAllSavesMissingPrerequisites = (saveList: SaveInfo[]) => {
+    const missingPrerequisitesList = saveList.map((save) =>
+        useMissingPrerequisites(save)
+    );
+
+    return useMemo(() => {
+        const result = new Map<string, any[]>();
+        saveList.forEach((save, index) => {
+            result.set(save.id, missingPrerequisitesList[index]);
+        });
+        return result;
+    }, [saveList, missingPrerequisitesList]);
+};
+
+const useCityInfoWithMissingMap = (
+    saveList: SaveInfo[],
+    missingPrerequisitesMap: Map<string, any[]>
+): CityInfoDict => {
+    return useMemo(() => {
+        const info: CityInfoDict = {};
+
+        for (const save of saveList) {
+            const cityName = save.cityName;
+            const missings = missingPrerequisitesMap.get(save.id) || [];
+
+            if (!info[cityName]) {
+                info[cityName] = {
+                    ...save,
+                    displayName: cityName,
+                    missingPrerequisites: [...missings],
+                };
+            } else {
+                const city = info[cityName];
+                city.missingPrerequisites?.push(...missings);
+                if (save.population > city.population) {
+                    city.population = save.population;
+                }
+                if (getTime(save.lastModified) > getTime(city.lastModified)) {
+                    city.lastModified = save.lastModified;
+                }
+            }
+        }
+
+        return info;
+    }, [saveList, missingPrerequisitesMap]);
+};
+
+// #endregion
+
+const CityWarning = memo<{ city: CityInfo }>(({ city }) => {
+    const { translate } = useLocalization();
+    return (
+        <>
+            <div>
+                {translate("GameListScreen.TOOLTIP_MISSING_REQUIRED_CONTENT")}
+            </div>
+            <div className={prerequisitesClasses.prerequesites}>
+                {city.missingPrerequisites!.map((p, i) => {
+                    return (
+                        <div
+                            className={prerequisitesClasses.prerequesite}
+                            key={i}>
+                            <div className={prerequisitesClasses.bullet}>•</div>
+                            <div
+                                className={prerequisitesClasses.name}
+                                cohinline="cohinline">
+                                {translate(`Content.NAME[${p}]`)}
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </>
+    );
+});
+
 const CityRow = memo<{
     city: CityInfo;
     isExpanded: boolean;
@@ -208,6 +286,17 @@ const CityRow = memo<{
                     viewBox="0 0 32 32">
                     <path d="m4 11 12 12 12-12" />
                 </svg>
+
+                {city.missingPrerequisites &&
+                    city.missingPrerequisites.length > 0 && (
+                        <Tooltip tooltip={<CityWarning city={city} />}>
+                            <img
+                                src="Media/Misc/Warning.svg"
+                                alt="warn"
+                                className={`${styles.warningIcon} ${saveItemClasses.warningIcon}`}
+                            />
+                        </Tooltip>
+                    )}
 
                 <span className={saveItemClasses.titleInner}>
                     {city.cityName}
@@ -233,7 +322,6 @@ const CityRow = memo<{
 
 CityRow.displayName = "CityRow";
 
-// 存档行组件
 const SaveRow = memo<{
     save: SaveInfo;
     isSelected: boolean;
@@ -255,37 +343,119 @@ const SaveRow = memo<{
 
 SaveRow.displayName = "SaveRow";
 
-// 排序控制组件
 const SortingControls = memo<{
     cityOrdering: number;
     saveOrdering: number;
+    isCityListOrderingDesc: boolean;
+    isSaveListOrderingDesc: boolean;
     onCityOrderingChange: (ordering: number) => void;
     onSaveOrderingChange: (ordering: number) => void;
 }>(
     ({
         cityOrdering,
         saveOrdering,
+        isCityListOrderingDesc,
+        isSaveListOrderingDesc,
         onCityOrderingChange,
         onSaveOrderingChange,
-    }) => (
-        <div className={styles.sortingControls}>
-            <SaveListHeader
-                onSelectOrdering={onCityOrderingChange}
-                options={ORDERING_OPTIONS}
-                selectedOrdering={cityOrdering}
-            />
-            <SaveListHeader
-                onSelectOrdering={onSaveOrderingChange}
-                options={ORDERING_OPTIONS}
-                selectedOrdering={saveOrdering}
-            />
-        </div>
-    )
+    }) => {
+        const { translate } = useLocalization();
+        return (
+            <div className={styles.sortingControls}>
+                <div className={styles.betterHeader}>
+                    <div className={styles.headerLabel}>
+                        {translate(
+                            "EvenBetterSaveList.Sort.CityName",
+                            "CityName"
+                        )}
+                    </div>
+                    <SaveListHeader
+                        className={styles.vanillaHeader}
+                        onSelectOrdering={onCityOrderingChange}
+                        options={ORDERING_OPTIONS}
+                        selectedOrdering={cityOrdering}
+                    />
+                    <div
+                        className={styles.sortButton}
+                        onClick={() => onCityOrderingChange(cityOrdering)}>
+                        {isCityListOrderingDesc ? (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 16 16">
+                                <path
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M2.22 13.28a.75.75 0 0 0 1.06 0l2-2a.75.75 0 1 0-1.06-1.06l-.72.72V3.25a.75.75 0 0 0-1.5 0v7.69l-.72-.72a.75.75 0 1 0-1.06 1.06zM7 3.25a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7 3.25m.75 4a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5zm0 4.75a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 16 16">
+                                <path
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M2.22 13.28a.75.75 0 0 0 1.06 0l2-2a.75.75 0 1 0-1.06-1.06l-.72.72V3.25a.75.75 0 0 0-1.5 0v7.69l-.72-.72a.75.75 0 1 0-1.06 1.06zM7.75 12a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5zm0-3.25a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 0 1.5zm0-4.75a.75.75 0 0 1 0-1.5h2.5a.75.75 0 0 1 0 1.5z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        )}
+                    </div>
+                </div>
+                <div className={styles.betterHeader}>
+                    <div className={styles.headerLabel}>
+                        {translate("EvenBetterSaveList.Sort.Save", "Save")}
+                    </div>
+                    <SaveListHeader
+                        className={styles.vanillaHeader}
+                        onSelectOrdering={onSaveOrderingChange}
+                        options={ORDERING_OPTIONS}
+                        selectedOrdering={saveOrdering}
+                    />
+                    <div
+                        className={styles.sortButton}
+                        onClick={() => onSaveOrderingChange(saveOrdering)}>
+                        {isSaveListOrderingDesc ? (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 16 16">
+                                <path
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M2.22 13.28a.75.75 0 0 0 1.06 0l2-2a.75.75 0 1 0-1.06-1.06l-.72.72V3.25a.75.75 0 0 0-1.5 0v7.69l-.72-.72a.75.75 0 1 0-1.06 1.06zM7 3.25a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 7 3.25m.75 4a.75.75 0 0 0 0 1.5h5.5a.75.75 0 0 0 0-1.5zm0 4.75a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="32"
+                                height="32"
+                                viewBox="0 0 16 16">
+                                <path
+                                    fill="currentColor"
+                                    fill-rule="evenodd"
+                                    d="M2.22 13.28a.75.75 0 0 0 1.06 0l2-2a.75.75 0 1 0-1.06-1.06l-.72.72V3.25a.75.75 0 0 0-1.5 0v7.69l-.72-.72a.75.75 0 1 0-1.06 1.06zM7.75 12a.75.75 0 0 0 0 1.5h7.5a.75.75 0 0 0 0-1.5zm0-3.25a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 0 1.5zm0-4.75a.75.75 0 0 1 0-1.5h2.5a.75.75 0 0 1 0 1.5z"
+                                    clip-rule="evenodd"
+                                />
+                            </svg>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 );
 
 SortingControls.displayName = "SortingControls";
 
-// 主组件
 export const EvenBetterSaveList = (Component: any) => (props: any) => {
     const enabled = useValue(enabled$);
 
@@ -297,16 +467,22 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
     const { onSelectSave, selectedSave } = props;
     const saveList = useValue(saveList$);
 
-    // 城市排序设置
+    const missingPrerequisitesMap = useAllSavesMissingPrerequisites(saveList);
+
+    // city
     const cityListOrdering = useValue(cityListOrdering$);
     const isCityListOrderingDesc = useValue(isCityListOrderingDesc$);
 
-    // 存档排序设置
+    // save
     const saveListOrdering = useValue(saveListOrdering$);
     const isSaveListOrderingDesc = useValue(isSaveListOrderingDesc$);
 
-    // 计算数据
-    const cityInfo = useCityInfo(saveList);
+    // compute
+    const cityInfo = useCityInfoWithMissingMap(
+        saveList,
+        missingPrerequisitesMap
+    );
+
     const cityList = useSortedCityList(
         saveList,
         cityInfo,
@@ -319,12 +495,12 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
         isSaveListOrderingDesc
     );
 
-    // 展开状态
+    // expanded
     const [expandedCities, setExpandedCities] = useState<Set<string>>(
         new Set()
     );
 
-    // 自动展开包含选中存档的城市
+    // expand selected at first
     useEffect(() => {
         if (selectedSave && saveList.length > 0) {
             const currentSave = saveList.find((s) => s.id === selectedSave);
@@ -334,9 +510,8 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
                 );
             }
         }
-    }, [selectedSave, saveList]); // 移除 expandedCities 依赖，避免阻止折叠
+    }, [selectedSave, saveList]);
 
-    // 事件处理
     const toggleCity = useCallback((cityName: string) => {
         setExpandedCities((prev) => {
             const next = new Set(prev);
@@ -371,17 +546,14 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
         [saveListOrdering, isSaveListOrderingDesc]
     );
 
-    // 扁平化列表
     const flatList = useFlatList(cityList, citySaveLists, expandedCities);
 
-    // 虚拟化设置
     const sizeProvider = useUniformSizeProvider(
         useCssLength(saveListClasses.itemHeight),
         flatList.length,
         3
     );
 
-    // 渲染函数
     const renderItem = useCallback(
         (index: number) => {
             const row = flatList[index];
@@ -414,6 +586,8 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
             <SortingControls
                 cityOrdering={cityListOrdering}
                 saveOrdering={saveListOrdering}
+                isCityListOrderingDesc={isCityListOrderingDesc}
+                isSaveListOrderingDesc={isSaveListOrderingDesc}
                 onCityOrderingChange={handleCityOrderingChange}
                 onSaveOrderingChange={handleSaveOrderingChange}
             />
