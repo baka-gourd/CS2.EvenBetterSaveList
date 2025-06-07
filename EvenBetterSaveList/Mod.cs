@@ -21,8 +21,7 @@ namespace EvenBetterSaveList
 
             Setting = new Setting(this);
             Setting.RegisterInOptionsUI();
-            GameManager.instance.localizationManager.AddSource("en-US", new LocaleEN(Setting));
-
+            GameManager.instance.localizationManager.AddSource("en-US", new LocaleEn(Setting));
 
             AssetDatabase.global.LoadSettings(nameof(EvenBetterSaveList), Setting, new Setting(this));
             updateSystem.UpdateAt<EvenBetterSaveListUISystem>(SystemUpdatePhase.UIUpdate);
@@ -31,11 +30,9 @@ namespace EvenBetterSaveList
         public void OnDispose()
         {
             Logger.Info(nameof(OnDispose));
-            if (Setting != null)
-            {
-                Setting.UnregisterInOptionsUI();
-                Setting = null;
-            }
+            if (Setting == null) return;
+            Setting.UnregisterInOptionsUI();
+            Setting = null;
         }
     }
 }

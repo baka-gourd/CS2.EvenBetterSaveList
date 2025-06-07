@@ -15,7 +15,6 @@
 .rightSection {
     display: flex;
     align-items: center;
-    gap: 0.25em;
 }
 
 .cityArrow {
@@ -48,7 +47,6 @@
 .sortingControls {
     display: flex;
     flex-direction: row;
-    gap: 1rem;
     padding: 0.5rem 0;
     justify-content: space-between;
     padding-bottom: var(--stroke2);

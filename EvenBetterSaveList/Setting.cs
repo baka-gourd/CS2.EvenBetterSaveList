@@ -1,23 +1,19 @@
 using Colossal;
 using Colossal.IO.AssetDatabase;
-using Colossal.IO.AssetDatabase.Internal;
 using Game.Modding;
 using Game.Settings;
-using Game.UI;
-using Game.UI.Widgets;
 using System.Collections.Generic;
 
 namespace EvenBetterSaveList
 {
-    [FileLocation(nameof(EvenBetterSaveList))]
+    [FileLocation(@"ModsSettings\EvenBetterSaveList\EvenBetterSaveList")]
     public class Setting : ModSetting
     {
         public Setting(IMod mod) : base(mod)
         {
-            SetDefaults();
         }
 
-        public override void SetDefaults()
+        public sealed override void SetDefaults()
         {
             Enabled = true;
             SelectedCityName = "";
@@ -38,13 +34,13 @@ namespace EvenBetterSaveList
         [SettingsUIHidden] public bool IsSaveListOrderingDesc { get; set; }
     }
 
-    public class LocaleEN : IDictionarySource
+    public class LocaleEn : IDictionarySource
     {
-        private readonly Setting m_Setting;
+        private readonly Setting _mSetting;
 
-        public LocaleEN(Setting setting)
+        public LocaleEn(Setting setting)
         {
-            m_Setting = setting;
+            _mSetting = setting;
         }
 
         public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors,
@@ -52,9 +48,9 @@ namespace EvenBetterSaveList
         {
             return new Dictionary<string, string>
             {
-                {m_Setting.GetSettingsLocaleID(), "Even Better Save List"},
-                {m_Setting.GetOptionDescLocaleID(nameof(m_Setting.Enabled)), "Enable"},
-                {m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.Enabled)), "Enable"},
+                {_mSetting.GetSettingsLocaleID(), "Even Better Save List"},
+                {_mSetting.GetOptionDescLocaleID(nameof(_mSetting.Enabled)), "Enable"},
+                {_mSetting.GetOptionLabelLocaleID(nameof(_mSetting.Enabled)), "Enable"},
                 {"EvenBetterSaveList.Sort.CityName", "City Name "},
                 {"EvenBetterSaveList.Sort.Save", "Save "},
             };
