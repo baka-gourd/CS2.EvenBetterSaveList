@@ -1,10 +1,11 @@
-using System.Collections.Generic;
 using Colossal;
 using Colossal.IO.AssetDatabase;
+using Colossal.IO.AssetDatabase.Internal;
 using Game.Modding;
 using Game.Settings;
 using Game.UI;
 using Game.UI.Widgets;
+using System.Collections.Generic;
 
 namespace EvenBetterSaveList
 {
@@ -15,6 +16,7 @@ namespace EvenBetterSaveList
         {
             SetDefaults();
         }
+
         public override void SetDefaults()
         {
             Enabled = true;
@@ -27,38 +29,39 @@ namespace EvenBetterSaveList
 
         public bool Enabled { get; set; }
 
-        [SettingsUIHidden]
-        public string SelectedCityName { get; set; }
+        [SettingsUIHidden] public string SelectedCityName { get; set; }
 
-        [SettingsUIHidden]
-        public int CityListOrdering { get; set; }
-        [SettingsUIHidden]
-        public bool IsCityListOrderingDesc { get; set; }
+        [SettingsUIHidden] public int CityListOrdering { get; set; }
+        [SettingsUIHidden] public bool IsCityListOrderingDesc { get; set; }
 
-        [SettingsUIHidden]
-        public int SaveListOrdering { get; set; }
-        [SettingsUIHidden]
-        public bool IsSaveListOrderingDesc { get; set; }
+        [SettingsUIHidden] public int SaveListOrdering { get; set; }
+        [SettingsUIHidden] public bool IsSaveListOrderingDesc { get; set; }
     }
 
     public class LocaleEN : IDictionarySource
     {
         private readonly Setting m_Setting;
+
         public LocaleEN(Setting setting)
         {
             m_Setting = setting;
         }
-        public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors, Dictionary<string, int> indexCounts)
+
+        public IEnumerable<KeyValuePair<string, string>> ReadEntries(IList<IDictionaryEntryError> errors,
+            Dictionary<string, int> indexCounts)
         {
             return new Dictionary<string, string>
             {
-                { m_Setting.GetSettingsLocaleID(), "EvenBetterSaveList" },
+                {m_Setting.GetSettingsLocaleID(), "Even Better Save List"},
+                {m_Setting.GetOptionDescLocaleID(nameof(m_Setting.Enabled)), "Enable"},
+                {m_Setting.GetOptionLabelLocaleID(nameof(m_Setting.Enabled)), "Enable"},
+                {"EvenBetterSaveList.Sort.CityName", "City Name "},
+                {"EvenBetterSaveList.Sort.Save", "Save "},
             };
         }
 
         public void Unload()
         {
-
         }
     }
 }

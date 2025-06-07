@@ -14,7 +14,7 @@ namespace EvenBetterSaveList
 
             AddUpdateBinding(new GetterValueBinding<int>(Mod.Id, "saveListOrdering", () => Mod.Setting.SaveListOrdering));
             AddUpdateBinding(new GetterValueBinding<string>(Mod.Id, "selectedCityName", () => Mod.Setting.SelectedCityName));
-            AddBinding(new TriggerBinding<string>(Mod.Id, "setSelectedCityName", (string name) =>
+            AddBinding(new TriggerBinding<string>(Mod.Id, "setSelectedCityName", name =>
             {
                 Mod.Setting.SelectedCityName = name;
                 Mod.Setting.ApplyAndSave();
@@ -22,13 +22,13 @@ namespace EvenBetterSaveList
 
 
             AddUpdateBinding(new GetterValueBinding<int>(Mod.Id, "cityListOrdering", () => Mod.Setting.CityListOrdering));
-            AddBinding(new TriggerBinding<int>(Mod.Id, "setCityListOrdering", (int i) =>
+            AddBinding(new TriggerBinding<int>(Mod.Id, "setCityListOrdering", i =>
             {
                 Mod.Setting.CityListOrdering = i;
                 Mod.Setting.ApplyAndSave();
             }));
             AddUpdateBinding(new GetterValueBinding<bool>(Mod.Id, "isCityListOrderingDesc", () => Mod.Setting.IsCityListOrderingDesc));
-            AddBinding(new TriggerBinding<bool>(Mod.Id, "setIsCityListOrderingDesc", (bool desc) =>
+            AddBinding(new TriggerBinding<bool>(Mod.Id, "setCityListOrderingDesc", desc =>
             {
                 Mod.Setting.IsCityListOrderingDesc = desc;
                 Mod.Setting.ApplyAndSave();
@@ -36,13 +36,13 @@ namespace EvenBetterSaveList
 
 
             AddUpdateBinding(new GetterValueBinding<int>(Mod.Id, "saveListOrdering", () => Mod.Setting.SaveListOrdering));
-            AddBinding(new TriggerBinding<int>(Mod.Id, "setSaveListOrdering", (int i) =>
+            AddBinding(new TriggerBinding<int>(Mod.Id, "setSaveListOrdering", i =>
             {
                 Mod.Setting.SaveListOrdering = i;
                 Mod.Setting.ApplyAndSave();
             }));
             AddUpdateBinding(new GetterValueBinding<bool>(Mod.Id, "isSaveListOrderingDesc", () => Mod.Setting.IsSaveListOrderingDesc));
-            AddBinding(new TriggerBinding<bool>(Mod.Id, "setIsSaveListOrderingDesc", (bool desc) =>
+            AddBinding(new TriggerBinding<bool>(Mod.Id, "setSaveListOrderingDesc", desc =>
             {
                 Mod.Setting.IsSaveListOrderingDesc = desc;
                 Mod.Setting.ApplyAndSave();
