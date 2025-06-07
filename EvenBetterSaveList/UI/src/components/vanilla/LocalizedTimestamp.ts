@@ -1,4 +1,4 @@
-import { getModuleComponent } from "util";
+import { getModuleComponent } from "components/vanilla/util";
 
 interface LocalizedTimestampProp {
     value: string;

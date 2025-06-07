@@ -12,20 +12,14 @@ type Classes<T = any> = T;
 export const getModuleClasses = <T = any>(modulePath: string) =>
     getModule(modulePath, "classes") as Classes<T>;
 
-// finded
-
-export const VirtualList = getModuleComponent(
-    "game-ui/common/scrolling/virtual-list/virtual-list.tsx",
-    "VirtualList"
-);
-
-export const saveListClasses = getModuleClasses(
-    "game-ui/menu/components/load-game-screen/save-list/save-list.module.scss"
-);
-
 export const useUniformSizeProvider = getModule(
     "game-ui/common/scrolling/virtual-list/virtual-list-size-provider.ts",
     "useUniformSizeProvider"
+);
+
+export const useMissingPrerequisites = getModule(
+    "game-ui/menu/components/shared/prerequisites/use-missing-prerequisites.ts",
+    "useMissingPrerequisites"
 );
 
 export const FullWidthDigits = getModuleComponent(
