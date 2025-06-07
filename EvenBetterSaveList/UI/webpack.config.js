@@ -67,7 +67,12 @@ module.exports = {
                             },
                         },
                     },
-                    "sass-loader",
+                    {
+                        loader: "sass-loader",
+                        options: {
+                            api: "modern",
+                        },
+                    },
                 ],
             },
             {
