@@ -9,7 +9,19 @@
   <!--LongDescription Value="Even better save list" /-->
   <LongDescription># Even Better Save List
 
-tba</LongDescription>
+The original inspiration and infrastructure came from [Better Save List][bsl], so this mod uses the same LICENSE. Thanks to the author for their hard work.
+
+Since [Better Save List][bsl] had not been updated for a long time, I rewrote Even Better Save List to provide better save interface functionality.
+
+This mod groups saves by city name and collapses them, making the save page more logical and easier to manage large numbers of saves. Sorting options are provided for city names and individual saves to help users select and find saves.
+
+## Compatibility
+
+Obviously, you cannot use this mod together with [Better Save List][bsl], and it cannot be used with any mods that modify the save page.
+
+This mod will not break your save file, and can be temporarily disabled in the options.
+
+[bsl]: https://mods.paradoxplaza.com/mods/82374/Windows</LongDescription>
   <!--Thumbnail-->
   <Thumbnail Value="Properties/Thumbnail.png" />
   <!--Screenshot, can be set multiple times-->
@@ -21,13 +33,16 @@ tba</LongDescription>
   <!--Version of the mod-->
   <ModVersion Value="1.0.0" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.0.*" />
+  <GameVersion Value="1.3.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="75426" />
   <!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
   <RequiredDLC Value="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog># 0.0.1</ChangeLog>
+  <ChangeLog># 1.0.0
+
+- First release
+- Support Asending, Desending and Group by Save.</ChangeLog>
   <!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/nullpinter" />
   <ExternalLink Type="github" Url="https://github.com/baka-gourd/CS2.EvenBetterSaveList" />
