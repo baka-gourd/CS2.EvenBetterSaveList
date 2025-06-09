@@ -12,7 +12,7 @@ import { CityInfo, SaveInfo } from "models/SaveData";
 import { SaveItem, saveItemClasses } from "components/vanilla/SaveItem";
 import { LocalizedTimestamp } from "components/vanilla/LocalizedTimestamp";
 import { SaveListHeader } from "components/vanilla/SaveListHeader";
-import styles from "./even-better-save-list.module.scss";
+import * as styles from "./even-better-save-list.module.scss";
 import { Tooltip } from "cs2/ui";
 import { useLocalization } from "cs2/l10n";
 import { VirtualList } from "components/vanilla/VirtualList";

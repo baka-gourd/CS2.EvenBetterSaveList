@@ -11,6 +11,7 @@ namespace EvenBetterSaveList
     {
         public Setting(IMod mod) : base(mod)
         {
+            SetDefaults();
         }
 
         public sealed override void SetDefaults()
