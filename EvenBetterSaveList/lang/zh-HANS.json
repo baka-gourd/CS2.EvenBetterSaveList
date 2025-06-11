@@ -1,4 +1,7 @@
 {
     "EvenBetterSaveList.Sort.Save": "存档",
-    "EvenBetterSaveList.Sort.CityName": "城市名称"
+    "EvenBetterSaveList.Sort.CityName": "城市名称",
+    "Options.SECTION[EvenBetterSaveList.EvenBetterSaveList.Mod]": "更好的存档列表",
+    "Options.OPTION_DESCRIPTION[EvenBetterSaveList.EvenBetterSaveList.Mod.Setting.Enabled]": "启用",
+    "Options.OPTION[EvenBetterSaveList.EvenBetterSaveList.Mod.Setting.Enabled]": "启用"
 }
