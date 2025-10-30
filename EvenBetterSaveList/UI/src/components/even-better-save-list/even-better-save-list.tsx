@@ -211,7 +211,6 @@ const useCityInfoWithMissingMap = (
         for (const save of saveList) {
             const cityName = save.cityName;
             const missings = missingPrerequisitesMap.get(save.id) || [];
-
             if (!info[cityName]) {
                 info[cityName] = {
                     ...save,
@@ -220,7 +219,10 @@ const useCityInfoWithMissingMap = (
                 };
             } else {
                 const city = info[cityName];
-                city.missingPrerequisites?.push(...missings);
+                for (const p of missings) {
+                    if (!city.missingPrerequisites?.includes(p))
+                        city.missingPrerequisites?.push(p);
+                }
                 if (save.population > city.population) {
                     city.population = save.population;
                 }

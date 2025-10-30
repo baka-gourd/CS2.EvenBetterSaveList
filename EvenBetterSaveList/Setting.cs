@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace EvenBetterSaveList
 {
-    [FileLocation(@"ModsSettings\EvenBetterSaveList\EvenBetterSaveList")]
+    [FileLocation(@"ModsSettings\Nullpinter\EvenBetterSaveList")]
     public class Setting : ModSetting
     {
         public Setting(IMod mod) : base(mod)

@@ -1,10 +1,10 @@
 <Publish>
   <!--Id must be set in order to update existed mod. it is not required for publishing mod for the first time-->
-  <ModId Value="" />
+  <ModId Value="112978" />
   <!--Name of the mod to display to players-->
-  <DisplayName Value="EvenBetterSaveList" />
+  <DisplayName Value="Even Better Save List" />
   <!--Short description of the mod-->
-  <ShortDescription Value="Even better save list" />
+  <ShortDescription Value="Keep your save page organized." />
   <!--Long description of the mod. Single line or multi line. Supports minimal markdown subset-->
   <!--LongDescription Value="Even better save list" /-->
   <LongDescription># Even Better Save List
@@ -25,13 +25,13 @@ This mod will not break your save file, and can be temporarily disabled in the o
   <!--Thumbnail-->
   <Thumbnail Value="Properties/Thumbnail.png" />
   <!--Screenshot, can be set multiple times-->
-  <Screenshot Value="" />
+  <Screenshot Value="Properties/Preview.jpg" />
   <!--Tag, can be set multiple times-->
   <Tag Value="" />
   <!--Link to the forum post where the mod can be discussed-->
-  <ForumLink Value="" />
+  <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/even-better-save-list.1775592/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.0.0" />
+  <ModVersion Value="1.0.1-build3" />
   <!--Recommended version of the base game to use the mod-->
   <GameVersion Value="1.3.*" />
   <!--Dependency for the mod, can be set multiple times-->
@@ -39,10 +39,9 @@ This mod will not break your save file, and can be temporarily disabled in the o
   <!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
   <RequiredDLC Value="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog># 1.0.0
+  <ChangeLog># 1.0.1
 
-- First release
-- Support Asending, Desending and Group by Save.</ChangeLog>
+- Support game 1.3.6</ChangeLog>
   <!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/nullpinter" />
   <ExternalLink Type="github" Url="https://github.com/baka-gourd/CS2.EvenBetterSaveList" />

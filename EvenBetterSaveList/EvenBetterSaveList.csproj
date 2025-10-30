@@ -1,89 +1,183 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<Configurations>Debug;Release</Configurations>
-	
-		<!--The file where mod information which is required for publishing mod on PDX mods are stored-->
-		<PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
-	</PropertyGroup>
-	
-	<!--Imports must be after PropertyGroup block-->
-	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
-	<Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net48</TargetFramework>
+    <Configurations>Debug;Release</Configurations>
+    <!--The file where mod information which is required for publishing mod on PDX mods are stored-->
+    <PublishConfigurationPath>Properties\PublishConfiguration.xml</PublishConfigurationPath>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Reference Include="Game">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Core">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Logging">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.IO.AssetDatabase">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.UI">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.UI.Binding">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Colossal.Localization">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.InputSystem">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="UnityEngine.CoreModule">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Burst">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Collections">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Entities">
-			<Private>false</Private>
-		</Reference>
-		<Reference Include="Unity.Mathematics">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
+  <PropertyGroup>
+    <BuildCounterFile>$(MSBuildProjectDirectory)\build.counter</BuildCounterFile>
+    <BaseVersion>1.0.1</BaseVersion>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<Reference Update="System">
-			<Private>false</Private>
-		</Reference>
-		<Reference Update="System.Core">
-			<Private>false</Private>
-		</Reference>
-		<Reference Update="System.Data">
-			<Private>false</Private>
-		</Reference>
-	</ItemGroup>
+  <!--Imports must be after PropertyGroup block-->
+  <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.props" />
+  <Import Project="$([System.Environment]::GetEnvironmentVariable('CSII_TOOLPATH', 'EnvironmentVariableTarget.User'))\Mod.targets" />
 
-	<ItemGroup>
-		<None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
-		<None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
-	</ItemGroup>
+  <ItemGroup>
+    <Reference Include="Game">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.Core">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.Logging">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.IO.AssetDatabase">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.UI">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.UI.Binding">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Colossal.Localization">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.InputSystem">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Burst">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Collections">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Entities">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Mathematics">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
 
-  <Target Name="SetupAttributes" BeforeTargets="BeforeBuild">
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)"
-             Value="$([System.IO.File]::ReadAllText($(ProjectDir)/Description.md))" Query="//LongDescription" />
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)"
-             Value="$([System.IO.File]::ReadAllText($(ProjectDir)/ChangeLog.md))" Query="//ChangeLog" />
-    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$(Version)" Query="//ModVersion/@Value" />
+  <ItemGroup>
+    <Reference Update="System">
+      <Private>false</Private>
+    </Reference>
+    <Reference Update="System.Core">
+      <Private>false</Private>
+    </Reference>
+    <Reference Update="System.Data">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="$(ModPropsFile)" Link="Properties\Mod.props" />
+    <None Include="$(ModTargetsFile)" Link="Properties\Mod.targets" />
+  </ItemGroup>
+
+  <Target Name="SetupAttributes" DependsOnTargets="IncrementBuildCount" BeforeTargets="Publish">
+    <CallTarget Targets="IncrementBuildCount" />
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$([System.IO.File]::ReadAllText($(ProjectDir)/Description.md))" Query="//LongDescription" />
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$([System.IO.File]::ReadAllText($(ProjectDir)/ChangeLog.md))" Query="//ChangeLog" />
+    <XmlPoke XmlInputPath="$(PublishConfigurationPath)" Value="$(InformationalVersion)" Query="//ModVersion/@Value" />
   </Target>
 
-	<ItemGroup>
-	  <Folder Include="lang\" />
+  <Target Name="LoadBuildCount" BeforeTargets="GetAssemblyVersion;GetAssemblyAttributes" Condition="'$(Building)' != 'true'">
+    <!-- Read file -->
+    <ReadLinesFromFile File="$(BuildCounterFile)" ContinueOnError="true">
+      <Output TaskParameter="Lines" ItemName="CounterLines" />
+    </ReadLinesFromFile>
+
+    <!-- Get first line -->
+    <PropertyGroup>
+      <CounterRaw>@(CounterLines)</CounterRaw>
+      <CounterRaw Condition="'$(CounterRaw)' != ''">$(CounterRaw.Split(';')[0])</CounterRaw>
+    </PropertyGroup>
+
+    <!-- Parse -->
+    <PropertyGroup>
+      <SavedVersion></SavedVersion>
+      <SavedCount>0</SavedCount>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(CounterRaw)' != '' AND $(CounterRaw.Contains('.'))">
+      <!-- Split -->
+      <SavedCount>$(CounterRaw.Split('.')[3])</SavedCount>
+      <SavedVersion>$(CounterRaw.Split('.')[0]).$(CounterRaw.Split('.')[1]).$(CounterRaw.Split('.')[2])</SavedVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(BaseVersion)' != '$(SavedVersion)' OR '$(CounterRaw)' == ''">
+      <BuildCount>1</BuildCount>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(BaseVersion)' == '$(SavedVersion)' AND '$(CounterRaw)' != ''">
+      <BuildCount>$(SavedCount)</BuildCount>
+    </PropertyGroup>
+
+    <!-- Set Version -->
+    <PropertyGroup>
+      <FileVersion>$(BaseVersion).$(BuildCount)</FileVersion>
+      <InformationalVersion>$(BaseVersion)-build$(BuildCount)</InformationalVersion>
+      <Version>$(BaseVersion)</Version>
+      <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <!-- Send message -->
+    <Message Importance="High" Text="[LoadBuildCount] Current Version: $(FileVersion)" />
+  </Target>
+
+  <Target Name="IncrementBuildCount">
+    <ReadLinesFromFile File="$(BuildCounterFile)" ContinueOnError="true">
+      <Output TaskParameter="Lines" ItemName="CounterLines2" />
+    </ReadLinesFromFile>
+    <PropertyGroup>
+      <CounterRaw2>@(CounterLines2)</CounterRaw2>
+      <CounterRaw2 Condition="'$(CounterRaw2)' != ''">$(CounterRaw2.Split(';')[0])</CounterRaw2>
+    </PropertyGroup>
+    <PropertyGroup>
+      <SavedVersion2></SavedVersion2>
+      <SavedCount2>0</SavedCount2>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(CounterRaw2)' != '' AND $(CounterRaw2.Contains('.'))">
+      <SavedCount2>$(CounterRaw2.Split('.')[3])</SavedCount2>
+      <SavedVersion2>$(CounterRaw2.Split('.')[0]).$(CounterRaw2.Split('.')[1]).$(CounterRaw2.Split('.')[2])</SavedVersion2>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(BaseVersion)' != '$(SavedVersion2)' OR '$(CounterRaw2)' == ''">
+      <BuildCount>1</BuildCount>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(BaseVersion)' == '$(SavedVersion2)' AND '$(CounterRaw2)' != ''">
+      <BuildCount>$([MSBuild]::Add($([System.Convert]::ToInt32('0$(SavedCount2)')), 1))</BuildCount>
+    </PropertyGroup>
+    <ItemGroup>
+      <CounterContent Include="$(BaseVersion).$(BuildCount)" />
+    </ItemGroup>
+
+    <WriteLinesToFile File="$(BuildCounterFile)" Lines="@(CounterContent)" Overwrite="true" />
+
+    <!-- Update properties for the build -->
+    <PropertyGroup>
+      <FileVersion>$(BaseVersion).$(BuildCount)</FileVersion>
+      <InformationalVersion>$(BaseVersion)-build$(BuildCount)</InformationalVersion>
+      <Version>$(BaseVersion)</Version>
+      <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <!-- Send message -->
+    <Message Importance="High" Text="[IncrementBuildCount] New Version: $(FileVersion)" />
+    <Message Importance="High" Text="BaseVersion = $(BaseVersion)" />
+    <Message Importance="High" Text="BuildCount = $(BuildCount)" />
+    <Message Importance="High" Text="Version = $(Version)" />
+    <Message Importance="High" Text="FileVersion = $(FileVersion)" />
+    <Message Importance="High" Text="InformationalVersion = $(InformationalVersion)" />
+  </Target>
+
+  <ItemGroup>
+    <Folder Include="lang\" />
     <Content Include="lang\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-	</ItemGroup>
+  </ItemGroup>
 
   <Target Name="BuildUI" AfterTargets="AfterBuild">
     <Exec Command="pnpm build" WorkingDirectory="$(ProjectDir)/UI" />

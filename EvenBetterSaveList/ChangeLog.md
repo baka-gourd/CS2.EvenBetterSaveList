@@ -1,4 +1,3 @@
-# 1.0.0
+# 1.0.1
 
-- First release
-- Support Asending, Desending and Group by Save.
+- Support game 1.3.6
