@@ -28,17 +28,18 @@
         "postcss-color-converter": "^1.2.1",
         "postcss-loader": "^8.2.0",
         "postcss-scss": "^4.0.9",
-        "sass": "^1.93.2",
-        "sass-loader": "^16.0.5",
+        "prettier": "3.7.4",
+        "sass": "^1.94.2",
+        "sass-loader": "^16.0.6",
         "style-loader": "^4.0.0",
         "swc-loader": "^0.2.6",
-        "taze": "^19.7.0",
+        "taze": "^19.9.2",
         "terser-webpack-plugin": "^5.3.14",
         "ts-loader": "^9.5.4",
         "tsconfig-paths-webpack-plugin": "^4.2.0",
         "typescript": "^5.9.3",
         "typescript-plugin-css-modules": "^5.2.0",
-        "webpack": "^5.102.1",
+        "webpack": "^5.103.0",
         "webpack-cli": "^6.0.1"
     }
 }
