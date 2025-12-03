@@ -7,7 +7,7 @@ interface SaveItemProp {
     locked?: boolean;
     tooltipsInactive?: boolean;
     inputAction?: Function;
-    checkPrerequesites?: boolean;
+    checkPrerequisites?: boolean;
     onClick?: Function;
     onDoubleClick?: Function;
     onSelect?: Function;
