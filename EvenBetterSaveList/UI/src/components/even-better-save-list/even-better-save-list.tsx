@@ -334,14 +334,14 @@ const SaveRow = memo<{
     save: SaveInfo;
     isSelected: boolean;
     onSelect: (saveId: string) => void;
-    onDoubleClick: (saveId: string) => void;
+    onDoubleClick: (save: SaveInfo) => void;
 }>(({ save, isSelected, onSelect, onDoubleClick }) => {
     const handleSelect = useCallback(() => {
         onSelect(save.id);
     }, [save.id, onSelect]);
     const handleDoubleClick = useCallback(() => {
-        onDoubleClick(save.id);
-    }, [save.id, onDoubleClick]);
+        onDoubleClick(save);
+    }, [save, onDoubleClick]);
 
     return (
         <SaveItem
