@@ -70,7 +70,7 @@ const createComparator = (ordering: number, isDesc: boolean) => {
             displayName: string;
             lastModified: string;
             population: number;
-        }
+        },
     >(
         a: T,
         b: T
@@ -189,7 +189,7 @@ const useFlatList = (
 
 const useAllSavesMissingPrerequisites = (saveList: SaveInfo[]) => {
     const missingPrerequisitesList = saveList.map((save) =>
-        useMissingPrerequisites(save)
+        useMissingPrerequisites(save.contentPrerequisites)
     );
 
     return useMemo(() => {
@@ -250,11 +250,13 @@ const CityWarning = memo<{ city: CityInfo }>(({ city }) => {
                     return (
                         <div
                             className={prerequisitesClasses.prerequesite}
-                            key={i}>
+                            key={i}
+                        >
                             <div className={prerequisitesClasses.bullet}>•</div>
                             <div
                                 className={prerequisitesClasses.name}
-                                cohinline="cohinline">
+                                cohinline="cohinline"
+                            >
                                 {translate(`Content.NAME[${p}]`)}
                             </div>
                         </div>
@@ -277,7 +279,8 @@ const CityRow = memo<{
     return (
         <button
             className={`${saveItemClasses.item} city-header ${styles.cityRow}`}
-            onClick={handleClick}>
+            onClick={handleClick}
+        >
             <div className={styles.leftSection}>
                 <svg
                     className={`${styles.cityArrow} ${
@@ -285,7 +288,8 @@ const CityRow = memo<{
                     } ${isExpanded ? styles.expanded : ""}`}
                     xmlns="http://www.w3.org/2000/svg"
                     version="1.1"
-                    viewBox="0 0 32 32">
+                    viewBox="0 0 32 32"
+                >
                     <path d="m4 11 12 12 12-12" />
                 </svg>
 
@@ -328,17 +332,22 @@ const SaveRow = memo<{
     save: SaveInfo;
     isSelected: boolean;
     onSelect: (saveId: string) => void;
-}>(({ save, isSelected, onSelect }) => {
-    const handleClick = useCallback(() => {
+    onDoubleClick: (saveId: string) => void;
+}>(({ save, isSelected, onSelect, onDoubleClick }) => {
+    const handleSelect = useCallback(() => {
         onSelect(save.id);
     }, [save.id, onSelect]);
+    const handleDoubleClick = useCallback(() => {
+        onDoubleClick(save.id);
+    }, [save.id, onDoubleClick]);
 
     return (
         <SaveItem
             checkPrerequesites={true}
             save={save}
             selected={isSelected}
-            onClick={handleClick}
+            onClick={handleSelect}
+            onDoubleClick={handleDoubleClick}
         />
     );
 });
@@ -379,13 +388,15 @@ const SortingControls = memo<{
                     />
                     <div
                         className={styles.sortButton}
-                        onClick={() => onCityOrderingChange(cityOrdering)}>
+                        onClick={() => onCityOrderingChange(cityOrdering)}
+                    >
                         {isCityListOrderingDesc ? (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="32"
                                 height="32"
-                                viewBox="0 0 16 16">
+                                viewBox="0 0 16 16"
+                            >
                                 <path
                                     fill="currentColor"
                                     fill-rule="evenodd"
@@ -398,7 +409,8 @@ const SortingControls = memo<{
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="32"
                                 height="32"
-                                viewBox="0 0 16 16">
+                                viewBox="0 0 16 16"
+                            >
                                 <path
                                     fill="currentColor"
                                     fill-rule="evenodd"
@@ -421,13 +433,15 @@ const SortingControls = memo<{
                     />
                     <div
                         className={styles.sortButton}
-                        onClick={() => onSaveOrderingChange(saveOrdering)}>
+                        onClick={() => onSaveOrderingChange(saveOrdering)}
+                    >
                         {isSaveListOrderingDesc ? (
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="32"
                                 height="32"
-                                viewBox="0 0 16 16">
+                                viewBox="0 0 16 16"
+                            >
                                 <path
                                     fill="currentColor"
                                     fill-rule="evenodd"
@@ -440,7 +454,8 @@ const SortingControls = memo<{
                                 xmlns="http://www.w3.org/2000/svg"
                                 width="32"
                                 height="32"
-                                viewBox="0 0 16 16">
+                                viewBox="0 0 16 16"
+                            >
                                 <path
                                     fill="currentColor"
                                     fill-rule="evenodd"
@@ -466,7 +481,7 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
         return <Component {...otherProps}>{children}</Component>;
     }
 
-    const { onSelectSave, selectedSave } = props;
+    const { onSelectSave, selectedSave, onDoubleClick } = props;
     const saveList = useValue(saveList$);
 
     const missingPrerequisitesMap = useAllSavesMissingPrerequisites(saveList);
@@ -576,6 +591,7 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
                         save={row.save}
                         isSelected={selectedSave === row.save.id}
                         onSelect={onSelectSave}
+                        onDoubleClick={onDoubleClick}
                     />
                 );
             }
