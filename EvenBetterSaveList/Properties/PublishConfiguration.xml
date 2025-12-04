@@ -31,17 +31,17 @@ This mod will not break your save file, and can be temporarily disabled in the o
   <!--Link to the forum post where the mod can be discussed-->
   <ForumLink Value="https://forum.paradoxplaza.com/forum/threads/even-better-save-list.1775592/" />
   <!--Version of the mod-->
-  <ModVersion Value="1.0.1-build3" />
+  <ModVersion Value="1.0.2-build2" />
   <!--Recommended version of the base game to use the mod-->
-  <GameVersion Value="1.3.*" />
+  <GameVersion Value="1.5.*" />
   <!--Dependency for the mod, can be set multiple times-->
   <Dependency Id="75426" />
   <!--Required DLC, can be set multiple times. Supported values are "Landmark Buildings", "San Fransisco Set", "Beach Properties", "Urban Promenades", "Modern Architecture"-->
   <RequiredDLC Value="" />
   <!--Change log for new version. Single line or multi line. Supports minimal markdown subset-->
-  <ChangeLog># 1.0.1
+  <ChangeLog># 1.0.2
 
-- Support game 1.3.6</ChangeLog>
+- Support game 1.5.2</ChangeLog>
   <!--External link, can be set multiple times. supported types are "discord", "github", "youtube", "twitch", "x", "paypal", "patreon", "buymeacoffee", "kofi", "crowdin", "gitlab", "gofundme"-->
   <ExternalLink Type="buymeacoffee" Url="https://buymeacoffee.com/nullpinter" />
   <ExternalLink Type="github" Url="https://github.com/baka-gourd/CS2.EvenBetterSaveList" />

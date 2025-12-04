@@ -1,3 +1,3 @@
-# 1.0.1
+# 1.0.2
 
-- Support game 1.3.6
+- Support game 1.5.2
