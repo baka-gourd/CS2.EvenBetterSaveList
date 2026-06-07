@@ -1,5 +1,5 @@
 import { ModRegistrar } from "cs2/modding";
-import { EvenBetterSaveList } from "components/even-better-save-list/even-better-save-list";
+import { EvenBetterSaveList } from "@/components/even-better-save-list/even-better-save-list";
 
 const register: ModRegistrar = (moduleRegistry) => {
     moduleRegistry.extend(

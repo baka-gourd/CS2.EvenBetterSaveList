@@ -1,4 +1,4 @@
-import { getModuleComponent } from "components/vanilla/util";
+import { getModuleComponent } from "@/components/vanilla/util";
 
 interface SaveListHeaderProp {
     className?: string;

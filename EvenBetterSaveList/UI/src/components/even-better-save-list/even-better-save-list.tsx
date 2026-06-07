@@ -8,18 +8,18 @@ import mod from "mod.json";
 import { bindValue, call, trigger, useValue } from "cs2/api";
 import { useCssLength } from "cs2/utils";
 import { memo, useEffect, useMemo, useState, useCallback } from "react";
-import { CityInfo, SaveInfo } from "models/SaveData";
-import { SaveItem, saveItemClasses } from "components/vanilla/SaveItem";
-import { LocalizedTimestamp } from "components/vanilla/LocalizedTimestamp";
-import { SaveListHeader } from "components/vanilla/SaveListHeader";
+import { CityInfo, SaveInfo } from "@/models/SaveData";
+import { SaveItem, saveItemClasses } from "@/components/vanilla/SaveItem";
+import { LocalizedTimestamp } from "@/components/vanilla/LocalizedTimestamp";
+import { SaveListHeader } from "@/components/vanilla/SaveListHeader";
 import * as styles from "./even-better-save-list.module.scss";
 import { Button, Tooltip } from "cs2/ui";
 import { useLocalization } from "cs2/l10n";
-import { VirtualList } from "components/vanilla/VirtualList";
+import { VirtualList } from "@/components/vanilla/VirtualList";
 import {
     prerequisitesClasses,
     saveListClasses,
-} from "components/vanilla/cssCollection";
+} from "@/components/vanilla/cssCollection";
 
 // #region MISC
 type CityInfoDict = { [key: string]: CityInfo };

@@ -1,5 +1,5 @@
-import { SaveInfo } from "models/SaveData";
-import { getModuleClasses, getModuleComponent } from "components/vanilla/util";
+import { SaveInfo } from "@/models/SaveData";
+import { getModuleClasses, getModuleComponent } from "@/components/vanilla/util";
 
 interface SaveItemProp {
     save: SaveInfo;

@@ -1,21 +1,20 @@
 {
-    "compilerOptions": {
-        "jsx": "react-jsx",
-        "target": "ESNext",
-        "module": "ESNext",
-        "moduleResolution": "Node",
-        "isolatedModules": true,
-        "strict": true,
-        "esModuleInterop": true,
-        "forceConsistentCasingInFileNames": true,
-        "baseUrl": "src",
-        "skipLibCheck": true,
-        "sourceMap": true,
-        "typeRoots": ["./types"],
-        "resolveJsonModule": true,
-        "paths": {
-            "mod.json": ["../mod.json"]
-        },
-        "plugins": [{ "name": "typescript-plugin-css-modules" }]
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "target": "ESNext",
+    "module": "ESNext",
+    "isolatedModules": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "typeRoots": ["./types"],
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "paths": {
+      "mod.json": ["./mod.json"],
+      "@/*": ["./src/*"]
     }
+  }
 }
