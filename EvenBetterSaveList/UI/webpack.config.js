@@ -92,6 +92,7 @@ module.exports = (env, argv) => {
             extensions: [".tsx", ".ts", ".js"],
             modules: ["node_modules", path.join(__dirname, "src")],
             alias: {
+                "@": path.resolve(__dirname, "src"),
                 "mod.json": path.resolve(__dirname, "mod.json"),
             },
         },

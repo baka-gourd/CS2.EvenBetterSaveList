@@ -118,7 +118,7 @@
     <!-- Set Version -->
     <PropertyGroup>
       <FileVersion>$(BaseVersion).$(BuildCount)</FileVersion>
-      <InformationalVersion>$(BaseVersion)-build$(BuildCount)</InformationalVersion>
+      <InformationalVersion>$(BaseVersion)+build.$(BuildCount)</InformationalVersion>
       <Version>$(BaseVersion)</Version>
       <AssemblyVersion>1.0.0.0</AssemblyVersion>
     </PropertyGroup>
@@ -158,7 +158,7 @@
     <!-- Update properties for the build -->
     <PropertyGroup>
       <FileVersion>$(BaseVersion).$(BuildCount)</FileVersion>
-      <InformationalVersion>$(BaseVersion)-build$(BuildCount)</InformationalVersion>
+      <InformationalVersion>$(BaseVersion)+build.$(BuildCount)</InformationalVersion>
       <Version>$(BaseVersion)</Version>
       <AssemblyVersion>1.0.0.0</AssemblyVersion>
     </PropertyGroup>

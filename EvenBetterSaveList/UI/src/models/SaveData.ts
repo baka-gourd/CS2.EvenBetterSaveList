@@ -15,6 +15,7 @@ export interface SaveInfo {
     lastModified: string;
     autoSave: boolean;
     cloudTarget: string;
+    isReadonly: boolean;
     // i don't care
     contentPrerequisites: any;
 }

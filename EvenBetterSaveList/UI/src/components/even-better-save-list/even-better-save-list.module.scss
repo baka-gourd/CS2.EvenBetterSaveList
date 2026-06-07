@@ -5,6 +5,67 @@
     padding: 0.5em 0;
 }
 
+.deleteModeRow {
+    --deleteColor: oklch(70% 0.2 30);
+    --deleteHoverColor: oklch(70% 0.2 30 / 0.5);
+    --deleteActiveColor: oklch(70% 0.2 30 / 0.7);
+    position: relative;
+    width: 100%;
+    color: var(--deleteColor);
+
+    > * {
+        position: relative;
+        z-index: 1;
+        width: 100%;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2;
+        pointer-events: none;
+        background-color: transparent;
+    }
+
+    &:hover {
+        color: var(--deleteColor) !important;
+    }
+
+    &:hover::after {
+        background-color: var(--deleteHoverColor);
+    }
+
+    &:active {
+        color: var(--deleteColor) !important;
+    }
+
+    &:active::after {
+        background-color: var(--deleteActiveColor);
+    }
+}
+
+.deleteModeIcon {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 3;
+    width: 32rem;
+    height: 32rem;
+    pointer-events: none;
+    color: #fff;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+}
+
+.deleteModeRow:hover .deleteModeIcon,
+.deleteModeRow:active .deleteModeIcon {
+    opacity: 1;
+}
+
 .leftSection {
     display: flex;
     align-items: center;

@@ -12,20 +12,19 @@ import { CityInfo, SaveInfo } from "@/models/SaveData";
 import { SaveItem, saveItemClasses } from "@/components/vanilla/SaveItem";
 import { LocalizedTimestamp } from "@/components/vanilla/LocalizedTimestamp";
 import { SaveListHeader } from "@/components/vanilla/SaveListHeader";
+import { DeleteRounded } from "@/components/DeleteRounded";
 import * as styles from "./even-better-save-list.module.scss";
 import { Button, Tooltip } from "cs2/ui";
 import { useLocalization } from "cs2/l10n";
 import { VirtualList } from "@/components/vanilla/VirtualList";
-import {
-    prerequisitesClasses,
-    saveListClasses,
-} from "@/components/vanilla/cssCollection";
+import { prerequisitesClasses, saveListClasses } from "@/components/vanilla/cssCollection";
 
 // #region MISC
 type CityInfoDict = { [key: string]: CityInfo };
 type RowType =
     | { type: "city"; city: CityInfo }
     | { type: "save"; save: SaveInfo; parentCity: string };
+type MissingPrerequisitesMap = Map<string, any[]>;
 
 const ORDERING_OPTIONS = [0, 2, 1] as const;
 const SORT_TYPES = {
@@ -40,25 +39,16 @@ const saveList$ = bindValue<SaveInfo[]>("menu", "saves");
 const enabled$ = bindValue<boolean>(mod.id, "enabled");
 
 const cityListOrdering$ = bindValue<number>(mod.id, "cityListOrdering");
-const setCityListOrdering = (i: number) =>
-    trigger(mod.id, "setCityListOrdering", i);
-const isCityListOrderingDesc$ = bindValue<boolean>(
-    mod.id,
-    "isCityListOrderingDesc"
-);
-const setCityListOrderingDesc = (desc: boolean) =>
-    trigger(mod.id, "setCityListOrderingDesc", desc);
+const setCityListOrdering = (i: number) => trigger(mod.id, "setCityListOrdering", i);
+const isCityListOrderingDesc$ = bindValue<boolean>(mod.id, "isCityListOrderingDesc");
+const setCityListOrderingDesc = (desc: boolean) => trigger(mod.id, "setCityListOrderingDesc", desc);
 
 const saveListOrdering$ = bindValue<number>(mod.id, "saveListOrdering");
-const setSaveListOrdering = (i: number) =>
-    trigger(mod.id, "setSaveListOrdering", i);
-const isSaveListOrderingDesc$ = bindValue<boolean>(
-    mod.id,
-    "isSaveListOrderingDesc"
-);
-const setSaveListOrderingDesc = (desc: boolean) =>
-    trigger(mod.id, "setSaveListOrderingDesc", desc);
+const setSaveListOrdering = (i: number) => trigger(mod.id, "setSaveListOrdering", i);
+const isSaveListOrderingDesc$ = bindValue<boolean>(mod.id, "isSaveListOrderingDesc");
+const setSaveListOrderingDesc = (desc: boolean) => trigger(mod.id, "setSaveListOrderingDesc", desc);
 
+const deleteSave = (id: string) => trigger("menu", "deleteSave", id);
 // #endregion
 
 // #region util
@@ -73,7 +63,7 @@ const createComparator = (ordering: number, isDesc: boolean) => {
         },
     >(
         a: T,
-        b: T
+        b: T,
     ): number => {
         let value: number;
         switch (ordering) {
@@ -125,7 +115,7 @@ const useSortedCityList = (
     saveList: SaveInfo[],
     cityInfo: CityInfoDict,
     ordering: number,
-    isDesc: boolean
+    isDesc: boolean,
 ): CityInfo[] => {
     return useMemo(() => {
         const cityNames = [...new Set(saveList.map((s) => s.cityName))];
@@ -139,7 +129,7 @@ const useSortedCityList = (
 const useGroupedSaves = (
     saveList: SaveInfo[],
     ordering: number,
-    isDesc: boolean
+    isDesc: boolean,
 ): { [cityName: string]: SaveInfo[] } => {
     return useMemo(() => {
         const groups: { [key: string]: SaveInfo[] } = {};
@@ -163,7 +153,7 @@ const useGroupedSaves = (
 const useFlatList = (
     cityList: CityInfo[],
     citySaveLists: { [cityName: string]: SaveInfo[] },
-    expandedCities: Set<string>
+    expandedCities: Set<string>,
 ): RowType[] => {
     return useMemo(() => {
         const rows: RowType[] = [];
@@ -187,23 +177,9 @@ const useFlatList = (
     }, [cityList, citySaveLists, expandedCities]);
 };
 
-const useAllSavesMissingPrerequisites = (saveList: SaveInfo[]) => {
-    const missingPrerequisitesList = saveList.map((save) =>
-        useMissingPrerequisites(save.contentPrerequisites)
-    );
-
-    return useMemo(() => {
-        const result = new Map<string, any[]>();
-        saveList.forEach((save, index) => {
-            result.set(save.id, missingPrerequisitesList[index]);
-        });
-        return result;
-    }, [saveList, missingPrerequisitesList]);
-};
-
 const useCityInfoWithMissingMap = (
     saveList: SaveInfo[],
-    missingPrerequisitesMap: Map<string, any[]>
+    missingPrerequisitesMap: MissingPrerequisitesMap,
 ): CityInfoDict => {
     return useMemo(() => {
         const info: CityInfoDict = {};
@@ -220,8 +196,7 @@ const useCityInfoWithMissingMap = (
             } else {
                 const city = info[cityName];
                 for (const p of missings) {
-                    if (!city.missingPrerequisites?.includes(p))
-                        city.missingPrerequisites?.push(p);
+                    if (!city.missingPrerequisites?.includes(p)) city.missingPrerequisites?.push(p);
                 }
                 if (save.population > city.population) {
                     city.population = save.population;
@@ -238,13 +213,33 @@ const useCityInfoWithMissingMap = (
 
 // #endregion
 
+const areSamePrerequisites = (a?: any[], b?: any[]) => {
+    if (a === b) return true;
+    if (!a || !b) return false;
+    if (a.length !== b.length) return false;
+    return a.every((value, index) => value === b[index]);
+};
+
+const SaveMissingPrerequisitesCollector = memo<{
+    save: SaveInfo;
+    onChange: (saveId: string, missingPrerequisites: any[]) => void;
+}>(({ save, onChange }) => {
+    const missingPrerequisites = useMissingPrerequisites(save.contentPrerequisites) as any[];
+
+    useEffect(() => {
+        onChange(save.id, missingPrerequisites);
+    }, [save.id, missingPrerequisites, onChange]);
+
+    return null;
+});
+
+SaveMissingPrerequisitesCollector.displayName = "SaveMissingPrerequisitesCollector";
+
 const CityWarning = memo<{ city: CityInfo }>(({ city }) => {
     const { translate } = useLocalization();
     return (
         <>
-            <div>
-                {translate("GameListScreen.TOOLTIP_MISSING_REQUIRED_CONTENT")}
-            </div>
+            <div>{translate("GameListScreen.TOOLTIP_MISSING_REQUIRED_CONTENT")}</div>
             <div className={prerequisitesClasses.prerequesites}>
                 {city.missingPrerequisites!.map((p, i) => {
                     return (
@@ -255,10 +250,7 @@ const CityWarning = memo<{ city: CityInfo }>(({ city }) => {
                             disabled
                         >
                             <div className={prerequisitesClasses.bullet}>•</div>
-                            <div
-                                className={prerequisitesClasses.name}
-                                cohinline="cohinline"
-                            >
+                            <div className={prerequisitesClasses.name} cohinline="cohinline">
                                 {translate(`Content.NAME[${p}]`, p)}
                             </div>
                         </Button>
@@ -295,26 +287,21 @@ const CityRow = memo<{
                     <path d="m4 11 12 12 12-12" />
                 </svg>
 
-                {city.missingPrerequisites &&
-                    city.missingPrerequisites.length > 0 && (
-                        <Tooltip tooltip={<CityWarning city={city} />}>
-                            <img
-                                src="Media/Misc/Warning.svg"
-                                alt="warn"
-                                className={`${styles.warningIcon} ${saveItemClasses.warningIcon}`}
-                            />
-                        </Tooltip>
-                    )}
+                {city.missingPrerequisites && city.missingPrerequisites.length > 0 && (
+                    <Tooltip tooltip={<CityWarning city={city} />}>
+                        <img
+                            src="Media/Misc/Warning.svg"
+                            alt="warn"
+                            className={`${styles.warningIcon} ${saveItemClasses.warningIcon}`}
+                        />
+                    </Tooltip>
+                )}
 
-                <span className={saveItemClasses.titleInner}>
-                    {city.cityName}
-                </span>
+                <span className={saveItemClasses.titleInner}>{city.cityName}</span>
             </div>
 
             <div className={styles.rightSection}>
-                <div className={`${saveItemClasses.populationValue}`}>
-                    {city.population}
-                </div>
+                <div className={`${saveItemClasses.populationValue}`}>{city.population}</div>
                 <Icon
                     tinted
                     src="Media/Game/Icons/Citizen.svg"
@@ -333,9 +320,10 @@ CityRow.displayName = "CityRow";
 const SaveRow = memo<{
     save: SaveInfo;
     isSelected: boolean;
+    isDeleteMode: boolean;
     onSelect: (saveId: string) => void;
     onDoubleClick: (save: SaveInfo) => void;
-}>(({ save, isSelected, onSelect, onDoubleClick }) => {
+}>(({ save, isSelected, isDeleteMode, onSelect, onDoubleClick }) => {
     const handleSelect = useCallback(() => {
         onSelect(save.id);
     }, [save.id, onSelect]);
@@ -343,7 +331,7 @@ const SaveRow = memo<{
         onDoubleClick(save);
     }, [save, onDoubleClick]);
 
-    return (
+    const saveItem = (
         <SaveItem
             checkPrerequisites={true}
             save={save}
@@ -351,6 +339,17 @@ const SaveRow = memo<{
             onClick={handleSelect}
             onDoubleClick={handleDoubleClick}
         />
+    );
+
+    if (!isDeleteMode) {
+        return saveItem;
+    }
+
+    return (
+        <div className={styles.deleteModeRow}>
+            {saveItem}
+            <DeleteRounded className={styles.deleteModeIcon} aria-hidden="true" />
+        </div>
     );
 });
 
@@ -377,10 +376,7 @@ const SortingControls = memo<{
             <div className={styles.sortingControls}>
                 <div className={styles.betterHeader}>
                     <div className={styles.headerLabel}>
-                        {translate(
-                            "EvenBetterSaveList.Sort.CityName",
-                            "CityName"
-                        )}
+                        {translate("EvenBetterSaveList.Sort.CityName", "CityName")}
                     </div>
                     <SaveListHeader
                         className={styles.vanillaHeader}
@@ -470,23 +466,49 @@ const SortingControls = memo<{
                 </div>
             </div>
         );
-    }
+    },
 );
 
 SortingControls.displayName = "SortingControls";
 
-export const EvenBetterSaveList = (Component: any) => (props: any) => {
-    const enabled = useValue(enabled$);
-
-    if (!enabled) {
-        const { children, ...otherProps } = props || {};
-        return <Component {...otherProps}>{children}</Component>;
-    }
-
+const EvenBetterSaveListEnabled = (props: any) => {
     const { onSelectSave, selectedSave, onDoubleClick } = props;
     const saveList = useValue(saveList$);
 
-    const missingPrerequisitesMap = useAllSavesMissingPrerequisites(saveList);
+    const [missingPrerequisitesMap, setMissingPrerequisitesMap] =
+        useState<MissingPrerequisitesMap>(() => new Map());
+
+    const handleMissingPrerequisitesChange = useCallback(
+        (saveId: string, missingPrerequisites: any[]) => {
+            setMissingPrerequisitesMap((prev) => {
+                if (areSamePrerequisites(prev.get(saveId), missingPrerequisites)) {
+                    return prev;
+                }
+
+                const next = new Map(prev);
+                next.set(saveId, missingPrerequisites);
+                return next;
+            });
+        },
+        [],
+    );
+
+    useEffect(() => {
+        setMissingPrerequisitesMap((prev) => {
+            const saveIds = new Set(saveList.map((save) => save.id));
+            let changed = false;
+            const next = new Map(prev);
+
+            for (const saveId of next.keys()) {
+                if (!saveIds.has(saveId)) {
+                    next.delete(saveId);
+                    changed = true;
+                }
+            }
+
+            return changed ? next : prev;
+        });
+    }, [saveList]);
 
     // city
     const cityListOrdering = useValue(cityListOrdering$);
@@ -497,36 +519,52 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
     const isSaveListOrderingDesc = useValue(isSaveListOrderingDesc$);
 
     // compute
-    const cityInfo = useCityInfoWithMissingMap(
-        saveList,
-        missingPrerequisitesMap
-    );
+    const cityInfo = useCityInfoWithMissingMap(saveList, missingPrerequisitesMap);
 
     const cityList = useSortedCityList(
         saveList,
         cityInfo,
         cityListOrdering,
-        isCityListOrderingDesc
+        isCityListOrderingDesc,
     );
-    const citySaveLists = useGroupedSaves(
-        saveList,
-        saveListOrdering,
-        isSaveListOrderingDesc
-    );
+    const citySaveLists = useGroupedSaves(saveList, saveListOrdering, isSaveListOrderingDesc);
 
     // expanded
-    const [expandedCities, setExpandedCities] = useState<Set<string>>(
-        new Set()
-    );
+    const [expandedCities, setExpandedCities] = useState<Set<string>>(new Set());
+    const [isAltPressed, setIsAltPressed] = useState(false);
+
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.altKey) {
+                setIsAltPressed(true);
+            }
+        };
+        const handleKeyUp = (event: KeyboardEvent) => {
+            if (!event.altKey || event.key === "Alt") {
+                setIsAltPressed(false);
+            }
+        };
+        const handleBlur = () => {
+            setIsAltPressed(false);
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        window.addEventListener("keyup", handleKeyUp);
+        window.addEventListener("blur", handleBlur);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keyup", handleKeyUp);
+            window.removeEventListener("blur", handleBlur);
+        };
+    }, []);
 
     // expand selected at first
     useEffect(() => {
         if (selectedSave && saveList.length > 0) {
             const currentSave = saveList.find((s) => s.id === selectedSave);
             if (currentSave && !expandedCities.has(currentSave.cityName)) {
-                setExpandedCities((prev) =>
-                    new Set(prev).add(currentSave.cityName)
-                );
+                setExpandedCities((prev) => new Set(prev).add(currentSave.cityName));
             }
         }
     }, [selectedSave, saveList]);
@@ -551,7 +589,7 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
                 setCityListOrdering(ordering);
             }
         },
-        [cityListOrdering, isCityListOrderingDesc]
+        [cityListOrdering, isCityListOrderingDesc],
     );
 
     const handleSaveOrderingChange = useCallback(
@@ -562,15 +600,19 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
                 setSaveListOrdering(ordering);
             }
         },
-        [saveListOrdering, isSaveListOrderingDesc]
+        [saveListOrdering, isSaveListOrderingDesc],
     );
+
+    const handleDeleteSave = useCallback((saveId: string) => {
+        deleteSave(saveId);
+    }, []);
 
     const flatList = useFlatList(cityList, citySaveLists, expandedCities);
 
     const sizeProvider = useUniformSizeProvider(
         useCssLength(saveListClasses.itemHeight),
         flatList.length,
-        3
+        3,
     );
 
     const renderItem = useCallback(
@@ -592,17 +634,37 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
                         key={`save-${row.save.id}`}
                         save={row.save}
                         isSelected={selectedSave === row.save.id}
-                        onSelect={onSelectSave}
+                        isDeleteMode={isAltPressed && !row.save.isReadonly}
+                        onSelect={
+                            isAltPressed && !row.save.isReadonly ? handleDeleteSave : onSelectSave
+                        }
                         onDoubleClick={onDoubleClick}
                     />
                 );
             }
         },
-        [flatList, expandedCities, toggleCity, selectedSave, onSelectSave]
+        [
+            flatList,
+            expandedCities,
+            toggleCity,
+            selectedSave,
+            isAltPressed,
+            onSelectSave,
+            handleDeleteSave,
+            onDoubleClick,
+        ],
     );
 
     return (
         <div className={`${saveListClasses.saveList} ${styles.evenBetter}`}>
+            {saveList.map((save) => (
+                <SaveMissingPrerequisitesCollector
+                    key={save.id}
+                    save={save}
+                    onChange={handleMissingPrerequisitesChange}
+                />
+            ))}
+
             <SortingControls
                 cityOrdering={cityListOrdering}
                 saveOrdering={saveListOrdering}
@@ -622,4 +684,23 @@ export const EvenBetterSaveList = (Component: any) => (props: any) => {
             </div>
         </div>
     );
+};
+
+EvenBetterSaveListEnabled.displayName = "EvenBetterSaveListEnabled";
+
+export const EvenBetterSaveList = (Component: any) => {
+    const EvenBetterSaveListWrapper = (props: any) => {
+        const enabled = useValue(enabled$);
+
+        if (!enabled) {
+            const { children, ...otherProps } = props || {};
+            return <Component {...otherProps}>{children}</Component>;
+        }
+
+        return <EvenBetterSaveListEnabled {...props} />;
+    };
+
+    EvenBetterSaveListWrapper.displayName = "EvenBetterSaveListWrapper";
+
+    return EvenBetterSaveListWrapper;
 };
